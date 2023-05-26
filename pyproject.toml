@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "gwinstek-api-client"
+version = "0.1.0"
+description = ""
+authors = ["Roman Popov <i@romanpopoff.ru>"]
+readme = "README.md"
+packages = [{include = "gwinstek_api_client"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
