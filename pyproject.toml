@@ -1,13 +1,18 @@
 [tool.poetry]
 name = "gwinstek-api-client"
 version = "0.1.0"
-description = ""
+description = "Api client for power supply"
 authors = ["Roman Popov <i@romanpopoff.ru>"]
 readme = "README.md"
 packages = [{include = "gwinstek_api_client"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+pytest = "^7.3.1"
+uvicorn = "^0.22.0"
+fastapi = "^0.95.2"
+pyvisa-py = "^0.7.0"
+flake8 = "^6.0.0"
 
 
 [build-system]
