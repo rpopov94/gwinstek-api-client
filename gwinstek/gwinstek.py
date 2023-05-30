@@ -89,7 +89,11 @@ class Gwinstek:
         """
         Get channel's state (current, voltage, power)
         :param channel: number of channel
-        :return: string
+        :return: string type
+            <Channel1 Voltage>, <Channel1 Current>, <Channel1 Power>,
+            <Channel2 Voltage>, <Channel2 Current>, <Channel2 Power>,
+            <Channel3 Voltage>, <Channel3 Current>, <Channel3 Power>,
+            <Channel4 Voltage>, <Channel4 Current>, <Channel4 Power>
         """
         try:
             self.logger.info("Get telemetry")

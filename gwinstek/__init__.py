@@ -4,6 +4,7 @@ from .gwinstek import Gwinstek
 
 global engine
 
+
 async def init_device():
     """ init device """
     rm = pyvisa.ResourceManager()
