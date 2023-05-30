@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from gwinstek import engine
+from app import engine
 
 
 router = APIRouter()
@@ -19,7 +19,7 @@ async def set_current(data: ChannelData):
     try:
         await engine.set_current(data.channel, data.value)
         return {"message": True, "channel": data.channel, "value": data.value}
-    except Exception as e:
+    except:
         return {"message": False, "channel": data.channel, "value": data.value}
 
 
@@ -28,7 +28,7 @@ async def set_voltage(data: ChannelData):
     try:
         await engine.set_voltage(data.channel, data.value)
         return {"message": True, "channel": data.channel, "value": data.value}
-    except Exception as e:
+    except:
         return {"message": False, "channel": data.channel, "value": data.value}
 
 
@@ -37,7 +37,7 @@ async def enable_channel(channel: int):
     try:
         await engine.enable_channel(channel)
         return {"channel": channel, "message": True}
-    except Exception as e:
+    except:
         return {"channel": channel, "message": True}
 
 
@@ -46,7 +46,7 @@ async def disable_channel(channel: int):
     try:
         await engine.disable_channel(channel)
         return {"message": True, "channel": channel}
-    except Exception as e:
+    except:
         return {"message": False, "channel": channel}
 
 
@@ -56,5 +56,5 @@ async def get_telemetry():
         telemetry = await engine.get_telemetry()
         return {"message": True,
                 "telemetry": [float(i) for i in telemetry.split(' ')]}
-    except Exception as e:
+    except:
         return {"message": False, "telemetry": []}

@@ -4,8 +4,9 @@ from datetime import datetime
 from fastapi import FastAPI
 import uvicorn
 
-from gwinstek import init_device
-from endpoints import router
+from gwinstek import init_device, engine
+from routes import router
+
 
 
 async def initialize_device():
@@ -17,6 +18,7 @@ app = FastAPI()
 
 # Include the router from endpoints.py
 app.include_router(router)
+
 
 # logging
 def log_telemetry(timestamp, telemetry):
