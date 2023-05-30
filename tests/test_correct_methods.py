@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import MagicMock
-from gwinstek import engine
+from app import engine
 from routes import router
 
 
