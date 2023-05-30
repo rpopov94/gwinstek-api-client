@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variables
+.env
+
+# Dependencies
+venv/
+env/
+env.bak/
+
+# IDEs
+.idea/*
+.vscode/
+
+# Editor backup files
+*~
+*.swp
+
+# Logs
+logs/
+
+# Compiled Python files
+*.pyc
+
+# Pytest cache
+.pytest_cache/
+
+# Coverage reports
+htmlcov/
+
+# Database files
+*.db
+
+# Static files
+/static/
+
+# Configuration files
+*.ini
+*.cfg
