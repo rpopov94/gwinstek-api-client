@@ -100,3 +100,8 @@ class Gwinstek:
             await self.__device.read_async(":MEASure:ALL?")
         except pyvisa.errors.VisaIOError as e:
             self.logger.error(f"Error while get telemetry\n{e}")
+
+    # Another commands
+    async def close(self):
+        """ disconnect device """
+        await self.__device.close()
