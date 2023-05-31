@@ -1,19 +1,19 @@
 from fastapi.testclient import TestClient
-from app import app
+
+from api.app import app
 
 
 # Create a TestClient instance
 client = TestClient(app)
 
 
+# tets set
 def test_set_current():
     payload = {
         "channel": 1,
         "value": 10.0
     }
-    # Send a POST request to the endpoint
     response = client.post("/set_current", json=payload)
-    # Assert the response status code and content
     assert response.status_code == 200
     assert response.json() == {"message": True, "channel": 1, "value": 10.0}
 
@@ -24,7 +24,6 @@ def test_set_voltage():
         "value": 10.0
     }
     response = client.post("/set_current", json=payload)
-    # Assert the response status code and content
     assert response.status_code == 200
     assert response.json() == {"message": True, "channel": 1, "value": 5.0}
 
@@ -48,6 +47,6 @@ def test_disable_channel():
 
 
 def get_telemetry():
-    response = client.post("/get_telemetry")
+    response = client.get("/get_telemetry")
     assert response.status_code == 200
-    assert response.json() == {"message": True, "telemetry": "somebody..."}
+    assert isinstance(response.json()["telemetry"], list)

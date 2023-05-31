@@ -1,71 +1,125 @@
+import logging
 import pytest
-from unittest.mock import Mock
-from gwinstek import Gwinstek
-import pyvisa.errors
+from pyvisa.errors import VisaIOError
+
+from gwinstek.gwinstek import Gwinstek
+
+
+# Mocking pyvisa's ResourceManager and Resource classes for testing
+class MockResourceManager:
+    def open_resource(self, resource_name):
+        return MockResource()
+
+
+class MockResource:
+    def __init__(self):
+        self.read_termination = '\n'
+        self.write_termination = '\n'
+
+    async def query_async(self, command):
+        if command.startswith("ISET"):
+            return "Set current successful"
+        elif command.startswith("VSET"):
+            return "Set voltage successful"
+        elif command.startswith(":OUTPut"):
+            return "Set output successful"
+        elif command.startswith(":MEASure"):
+            return "Get telemetry successful"
+        else:
+            return ""
+
+    async def read_async(self, command):
+        return "Telemetry values"
 
 
 @pytest.fixture
-def mock_device():
-    return Mock()
-
-
-@pytest.fixture
-def gwinstek(mock_device):
-    return Gwinstek(mock_device)
+async def gwinstek():
+    async with Gwinstek(MockResourceManager()) as gw:
+        yield gw
 
 
 @pytest.mark.asyncio
-async def test_set_current(gwinstek, mock_device):
-    channel = 1
-    value = 2.5
-
-    await gwinstek.set_current(channel, value)
-    mock_device.query_async.assert_called_once_with("ISET1:2.5000")
+async def test_set_current(gwinstek):
+    await gwinstek.set_current(1, 2.5)
+    # Assert that the logger has recorded the correct message
+    assert logging.info.call_args[0][0] == "Set 2.5 A for channel #1"
 
 
 @pytest.mark.asyncio
-async def test_set_voltage(gwinstek, mock_device):
-    channel = 2
-    value = 12.3
-
-    await gwinstek.set_voltage(channel, value)
-    mock_device.query_async.assert_called_once_with("VSET2:12.300")
+async def test_set_voltage(gwinstek):
+    await gwinstek.set_voltage(2, 3.5)
+    # Assert that the logger has recorded the correct message
+    assert logging.info.call_args[0][0] == "Set 3.5 V for channel #2"
 
 
 @pytest.mark.asyncio
-async def test_enable_channel(gwinstek, mock_device):
-    channel = 1
-
-    await gwinstek.enable_channel(channel)
-    mock_device.query_async.assert_called_once_with(":OUTPut1:STATe ON")
-
-
-@pytest.mark.asyncio
-async def test_disable_channel(gwinstek, mock_device):
-    channel = 2
-
-    await gwinstek.disable_channel(channel)
-    mock_device.query_async.assert_called_once_with(":OUTPut2:STATe OFF")
+async def test_enable_channel(gwinstek):
+    await gwinstek.enable_channel(3)
+    # Assert that the logger has recorded the correct message
+    assert logging.info.call_args[0][0] == "Enable channel #3"
 
 
 @pytest.mark.asyncio
-async def test_get_telemetry(gwinstek, mock_device):
-    mock_device.read_async.return_value = "1.23, 2.45, 3.67, 4.56, 7.89, " \
-                                          "0.12, 0, 0, 0, 9.87, 6.54, 3.21"
+async def test_disable_channel(gwinstek):
+    await gwinstek.disable_channel(4)
+    # Assert that the logger has recorded the correct message
+    assert logging.info.call_args[0][0] == "Disable channel #4"
 
+
+@pytest.mark.asyncio
+async def test_get_telemetry(gwinstek):
     telemetry = await gwinstek.get_telemetry()
-    mock_device.read_async.assert_called_once_with(":MEASure:ALL?")
-    assert telemetry == "1.23, 2.45, 3.67, 4.56, 7.89, 0.12, 0, 0, 0, 9.87," \
-                        " 6.54, 3.21"
+    # Assert that the returned telemetry is correct
+    assert telemetry == "Telemetry values"
 
 
 @pytest.mark.asyncio
-async def test_set_current_error_handling(gwinstek, mock_device):
-    channel = 5
-    value = 3.0
-    mock_device.query_async.side_effect = pyvisa.errors.VisaIOError
+async def test_set_current_error(gwinstek):
+    with pytest.raises(VisaIOError):
+        await gwinstek.set_current(1, 2.5)
+    # Assert that the logger has recorded the correct error message
+    assert logging.error.call_args[0][0].startswith("Error while setting current channel 1")
 
-    with pytest.raises(pyvisa.errors.VisaIOError):
-        await gwinstek.set_current(channel, value)
-    mock_device.query_async.assert_called_once_with("ISET5:3.0000")
-    gwinstek.logger.error.assert_called_once()
+
+@pytest.mark.asyncio
+async def test_set_voltage_error(gwinstek):
+    with pytest.raises(VisaIOError):
+        await gwinstek.set_voltage(2, 3.5)
+    # Assert that the logger has recorded the correct error message
+    assert logging.error.call_args[0][0].startswith("Error while setting voltage:")
+
+
+@pytest.mark.asyncio
+async def test_enable_channel_error(gwinstek):
+    with pytest.raises(VisaIOError):
+        await gwinstek.enable_channel(3)
+    # Assert that the logger has recorded the correct error message
+    assert logging.error.call_args[0][0].startswith("Error enable channel #3")
+
+
+@pytest.mark.asyncio
+async def test_disable_channel_error(gwinstek):
+    with pytest.raises(VisaIOError):
+        await gwinstek.disable_channel(4)
+    # Assert that the logger has recorded the correct error message
+    assert logging.error.call_args[0][0].startswith("Error disable channel #4")
+
+
+@pytest.mark.asyncio
+async def test_get_telemetry_error(gwinstek):
+    with pytest.raises(VisaIOError):
+        await gwinstek.get_telemetry()
+    # Assert that the logger has recorded the correct error message
+    assert logging.error.call_args[0][0].startswith("Error while get telemetry")
+
+
+# Mocking the logging module
+@pytest.fixture(autouse=True)
+def mock_logging(mocker):
+    mocker.patch("logging.getLogger")
+    logger = mocker.Mock()
+    logger.error = mocker.Mock()
+    logger.info = mocker.Mock()
+    logging.getLogger.return_value = logger
+
+

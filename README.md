@@ -10,8 +10,7 @@ This guide provides instructions on how to set up this project.
 
 ```
 project
-│   app.py                          # main file 
-|   routes.py                       # file with all routers
+│   run.py                          # main file 
 │   .flake8                         # linter
 │   .gitignore                      # gitignore file    
 |   poetry.lock                     # utomatically generated file that locks the dependencies 
@@ -22,7 +21,12 @@ project
 │   │   __init__.py                 # batch file
 │   │   gwinstek.py                 # consist a class driver
 |
+└───api
+│   │   __init__.py                 # batch file
+│   │   app.py                      # a file with the main functionality of the application
+|
 └───tests
+    |   __init__.py                 # package file
     │   test_api.py                 # set of tests that check the correctness of commands issued via tcp-ip
     │   tests_correct_data.py       # set of tests that verify the correctness of processing data received from the device
     |   test_correct_methods.py     # set of tests that verify that when accessing the url, the desired method of the desired class will be called
@@ -64,12 +68,21 @@ poetry shell
 6. Run project
 
 ```bash
-python app.py
+uvicorn run:api --host 0.0.0.0 --port 8000
 ```
+Open browser with address http://0.0.0.0:8000/docs
+
+Go to page http://0.0.0.0:8000/docs to get the documentation in swagger
 
 ### Description API
 
 Here are the descriptions of the REST API endpoints:
+
+`GET /`
+
+**Description**: Home page.
+
+**Response**: JSON object with a success message with greeting.
 
 `POST /set_current:`
 
@@ -103,7 +116,7 @@ Here are the descriptions of the REST API endpoints:
 
 **Response**: JSON object with a success message and the channel number.
 
-**GET /get_telemetry**:
+`GET /get_telemetry:`
 
 **Description**: Retrieves telemetry data for all channels.
 
@@ -122,6 +135,8 @@ pytest
 * [Gwinsteck DC power supplies](https://www.gwinstek.com/en-global/products/downloadSeriesDownNew/14242/1737)
 * [Fastapi docs](https://fastapi.tiangolo.com/)
 * [Poetry documentation](https://python-poetry.org/docs/)
+* [FastAPI with Async SQLAlchemy, SQLModel, and Alembic](https://testdriven.io/blog/fastapi-sqlmodel/)
+* [Developing and Testing an Asynchronous API with FastAPI and Pytest](https://testdriven.io/blog/fastapi-crud/)
 
 ### License 
 MIT
