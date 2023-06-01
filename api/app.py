@@ -2,11 +2,9 @@ import asyncio
 import logging
 from datetime import datetime
 from fastapi import FastAPI, Depends
-import uvicorn
 from pydantic import BaseModel
 
 from gwinstek.gwinstek import Gwinstek
-
 
 app = FastAPI()
 
@@ -19,10 +17,6 @@ async def startup_event():
     asyncio.create_task(telemetry_polling())
 
 
-def get_engine():
-    return app.state.engine
-
-
 class ChannelData(BaseModel):
     channel: int
     value: float
@@ -33,8 +27,9 @@ class ChannelData(BaseModel):
 async def home():
     return {"message": "Gwinstek api client"}
 
+
 @app.post("/set_current")
-async def set_current(data: ChannelData, engine=Depends(get_engine)):
+async def set_current(data: ChannelData, engine=Depends(app.state.engine)):
     try:
         await engine.set_current(data.channel, data.value)
         return {"message": True, "channel": data.channel, "value": data.value}
@@ -43,7 +38,7 @@ async def set_current(data: ChannelData, engine=Depends(get_engine)):
 
 
 @app.post("/set_voltage")
-async def set_voltage(data: ChannelData, engine=Depends(get_engine)):
+async def set_voltage(data: ChannelData, engine=Depends(app.state.engine)):
     try:
         await engine.set_voltage(data.channel, data.value)
         return {"message": True, "channel": data.channel, "value": data.value}
@@ -52,7 +47,7 @@ async def set_voltage(data: ChannelData, engine=Depends(get_engine)):
 
 
 @app.post("/enable_channel/{channel}")
-async def enable_channel(channel: int, engine=Depends(get_engine)):
+async def enable_channel(channel: int, engine=Depends(app.state.engine)):
     try:
         await engine.enable_channel(channel)
         return {"channel": channel, "message": True}
@@ -61,7 +56,7 @@ async def enable_channel(channel: int, engine=Depends(get_engine)):
 
 
 @app.post("/disable_channel/{channel}")
-async def disable_channel(channel: int, engine=Depends(get_engine)):
+async def disable_channel(channel: int, engine=Depends(app.state.engine)):
     try:
         await engine.disable_channel(channel)
         return {"message": True, "channel": channel}
@@ -70,7 +65,7 @@ async def disable_channel(channel: int, engine=Depends(get_engine)):
 
 
 @app.get("/get_telemetry")
-async def get_telemetry(engine=Depends(get_engine)):
+async def get_telemetry(engine=Depends(app.state.engine)):
     try:
         telemetry = await engine.get_telemetry()
         return {
