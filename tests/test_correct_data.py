@@ -78,7 +78,8 @@ async def test_set_current_error(gwinstek):
     with pytest.raises(VisaIOError):
         await gwinstek.set_current(1, 2.5)
     # Assert that the logger has recorded the correct error message
-    assert logging.error.call_args[0][0].startswith("Error while setting current channel 1")
+    assert logging.error.call_args[0][0]\
+        .startswith("Error while setting current channel 1")
 
 
 @pytest.mark.asyncio
@@ -86,7 +87,8 @@ async def test_set_voltage_error(gwinstek):
     with pytest.raises(VisaIOError):
         await gwinstek.set_voltage(2, 3.5)
     # Assert that the logger has recorded the correct error message
-    assert logging.error.call_args[0][0].startswith("Error while setting voltage:")
+    assert logging.error.call_args[0][0]\
+        .startswith("Error while setting voltage:")
 
 
 @pytest.mark.asyncio
@@ -110,7 +112,8 @@ async def test_get_telemetry_error(gwinstek):
     with pytest.raises(VisaIOError):
         await gwinstek.get_telemetry()
     # Assert that the logger has recorded the correct error message
-    assert logging.error.call_args[0][0].startswith("Error while get telemetry")
+    assert logging.error.call_args[0][0].\
+        startswith("Error while get telemetry")
 
 
 # Mocking the logging module
@@ -121,5 +124,3 @@ def mock_logging(mocker):
     logger.error = mocker.Mock()
     logger.info = mocker.Mock()
     logging.getLogger.return_value = logger
-
-
